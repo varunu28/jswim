@@ -1,10 +1,27 @@
 # ToDo
 
- - [X] Start servers individually
- - [X] Log server port to a file
- - [X] Retrieve peer server ports
- - [X] Send a message to peer servers
- - [X] Receive reply from peer servers
- - [X] Filter failed nodes in server-sync state for ping
- - [X] Broadcast server sync state to other groups
- - [X] Update server state by interpreting broadcast message
+ - [X] **Background Process 1**
+   - [X] Send PING message to a random set of 2 processes
+   - [X] Add a time entry against the process to PING list
+ - [X] **Background Process 2**
+   - [X] Filter out time entries which have crossed the PING threshold but not the suspect threshold
+   - [X] Pick another set of random processes and send PING-REQUEST to ping the filtered processes
+   - [X] Add a time entry against the process to PING-REQUEST list
+ - [X] **Background Process 3**
+   - [X] Filter out time entries which have crossed the suspect threshold
+   - [X] Mark the node as suspect
+   - [X] Broadcast to a random set of nodes about the failure using PING message
+ - [X] **Background Process 4**
+   - [X] Filter out time entries which have crossed the suspect threshold
+   - [X] Mark the node as failed 
+   - [X] Broadcast to a random set of nodes about the failure using PING message
+ - [X] **Handling ACK message**
+   - [X] Mark the process as alive
+   - [X] Broadcast the alive as PING
+   - [X] Remove time entry against the process
+ - [X] **Handling PING message**
+   - [X] Read the Piggybacked state associated with PING and update server state
+   - [X] Respond with an ACK 
+ - [X] **Handling PING-REQUEST message**
+   - [X] Send a PING to requested process
+   - [X] If ACK is received, return it back with ACK response

@@ -5,16 +5,16 @@ import com.varun.swim.ServerSyncState;
 
 import java.io.IOException;
 
-import static com.varun.swim.util.Constants.PING_RESPONSE;
+import static com.varun.swim.util.Constants.PING_MESSAGE;
 
-public record PingRequestMessage(int fromPort, int selfPort,
+public record PingRequestMessage(int fromPort, int forPort, int selfPort,
                                  ServerSyncState serverSyncState) implements ServerMessage {
 
     @Override
     public void interpret() throws IOException {
-        CustomClient client = new CustomClient(this.fromPort);
-        client.sendMessage(String.format("%s %d", PING_RESPONSE, selfPort));
+        CustomClient client = new CustomClient(this.forPort);
+        client.sendMessage(String.format("%s %d %s", PING_MESSAGE, selfPort, serverSyncState.toString()));
         client.close();
-        this.serverSyncState.markNodeAsAlive(this.fromPort);
+        serverSyncState.recordIndirectPing(fromPort, forPort);
     }
 }
