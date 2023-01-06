@@ -14,7 +14,7 @@ public class CustomClient {
         this.writer = new PrintWriter(socket.getOutputStream(), true);
     }
 
-    public void sendMessage(String message) throws IOException {
+    public void sendMessage(String message) {
         this.writer.println(message);
     }
 

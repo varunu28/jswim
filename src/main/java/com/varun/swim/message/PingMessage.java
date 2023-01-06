@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.varun.swim.util.Constants.ACK_MESSAGE;
+import static com.varun.swim.util.Constants.PING_MESSAGE;
 
 public record PingMessage(int fromPort, int selfPort,
                           ServerSyncState serverSyncState,
@@ -15,6 +16,7 @@ public record PingMessage(int fromPort, int selfPort,
 
     @Override
     public void interpret() throws IOException {
+        System.out.printf("Received %s from %d\n", PING_MESSAGE, this.fromPort);
         this.serverSyncState.markNodeAsAlive(this.fromPort);
         for (Integer failedNode : failedNodes) {
             serverSyncState.markNodeAsFailed(failedNode);

@@ -11,7 +11,6 @@ public class Broadcaster {
         while (broadcastCount-- > 0 && peerNodeIdx < peerNodes.size()) {
             CustomClient client;
             int randomPeerNode = peerNodes.get(peerNodeIdx++);
-            System.out.printf("Broadcasting to %d\n", randomPeerNode);
             try {
                 client = new CustomClient(randomPeerNode);
                 client.sendMessage(message);

@@ -14,11 +14,11 @@ public class Constants {
 
     public static final Long PING_INTERVAL = 5L;
 
-    public static final Long INDIRECT_PING_THRESHOLD = 6L;
+    public static final Long INDIRECT_PING_THRESHOLD = 8L;
 
-    public static final Long SUSPECT_THRESHOLD = 7L;
+    public static final Long SUSPECT_THRESHOLD = 10L;
 
-    public static final Long FAILURE_THRESHOLD = 8L;
+    public static final Long FAILURE_THRESHOLD = 12L;
 
     public static final Long PING_PEER_COUNT = 2L;
 

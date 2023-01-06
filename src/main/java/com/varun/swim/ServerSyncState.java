@@ -56,7 +56,7 @@ public class ServerSyncState {
 
     public void markNodeAsFailed(int node) {
         if (this.failedNodes.add(node)) {
-            System.out.printf("Marking node %d as failed\n", node);
+            System.out.printf("Marking node %d as FAILED\n", node);
             this.nodeToPingTime.remove(node);
         }
     }
@@ -74,17 +74,18 @@ public class ServerSyncState {
         String allFailedNodes = failedNodes.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
-        String allSuspectNodes = getNodesPassSuspectThreshold(System.currentTimeMillis())
+        Set<Integer> suspectedNodes = getNodesPassSuspectThreshold(System.currentTimeMillis());
+        String allSuspectNodes = suspectedNodes
                 .stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
         return PING_CONFIRM +
                 ":" +
-                (allFailedNodes.isEmpty() ? "," : allFailedNodes) +
+                (failedNodes.isEmpty() ? "," : allFailedNodes) +
                 " " +
                 PING_SUSPECT +
                 ":" +
-                (allSuspectNodes.isEmpty() ? "," : allSuspectNodes);
+                (suspectedNodes.isEmpty() ? "," : allSuspectNodes);
     }
 
     public void recordIndirectPing(int fromPort, int forPort) {
