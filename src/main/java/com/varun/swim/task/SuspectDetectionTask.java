@@ -39,7 +39,6 @@ public class SuspectDetectionTask implements Runnable {
             throw new RuntimeException(e);
         }
         for (Integer node : suspectNodes) {
-            System.out.printf("Marking node %d as SUSPECT\n", node);
             Broadcaster.broadcastToRandomPeers(
                     List.copyOf(peerNodes),
                     String.format("%s %d %s:, %s:%d", PING_MESSAGE, port, PING_CONFIRM, PING_SUSPECT, node),

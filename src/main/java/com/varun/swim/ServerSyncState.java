@@ -1,5 +1,7 @@
 package com.varun.swim;
 
+import com.varun.swim.logging.CustomLogger;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -11,13 +13,15 @@ public class ServerSyncState {
 
     private final Set<Integer> failedNodes;
     private final Map<Integer, Long> nodeToPingTime;
-
     private final Map<Integer, List<Integer>> indirectPingMapping;
+    private static final CustomLogger CUSTOM_LOGGER = new CustomLogger();
+    private final Map<Integer, Long> suspectedNodeToPingTime;
 
     public ServerSyncState() {
         this.failedNodes = new HashSet<>();
         this.nodeToPingTime = new HashMap<>();
         this.indirectPingMapping = new HashMap<>();
+        this.suspectedNodeToPingTime = new HashMap<>();
     }
 
     public Set<Integer> getNodesForIndirectPing(long currentTimeMillis) {
@@ -32,22 +36,35 @@ public class ServerSyncState {
     }
 
     public Set<Integer> getNodesPassFailedThreshold(long currentTimeMillis) {
-        return this.nodeToPingTime.entrySet()
-                .stream()
-                .filter(e -> TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis - e.getValue()) >= FAILURE_THRESHOLD)
-                .map(Map.Entry::getKey)
-                .collect(toSet());
+        updateFailedNodesList(currentTimeMillis);
+        return Set.copyOf(failedNodes);
+    }
+
+    private void updateFailedNodesList(long currentTimeMillis) {
+        Set<Integer> nodes = Set.copyOf(suspectedNodeToPingTime.keySet());
+        for (Integer node : nodes) {
+            long duration = TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis - nodeToPingTime.get(node));
+            if (duration >= FAILURE_THRESHOLD) {
+                markNodeAsFailed(node);
+            }
+        }
     }
 
     public Set<Integer> getNodesPassSuspectThreshold(long currentTimeMillis) {
-        return this.nodeToPingTime.entrySet()
-                .stream()
-                .filter(e -> {
-                    long timeInMillis = TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis - e.getValue());
-                    return timeInMillis < FAILURE_THRESHOLD && timeInMillis >= SUSPECT_THRESHOLD;
-                })
-                .map(Map.Entry::getKey)
-                .collect(toSet());
+        updateSuspectedNodesList(currentTimeMillis);
+        return Set.copyOf(suspectedNodeToPingTime.keySet());
+    }
+
+    private void updateSuspectedNodesList(long currentTimeMillis) {
+        Set<Integer> nodes = Set.copyOf(nodeToPingTime.keySet());
+        for (Integer node : nodes) {
+            long duration = TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis - nodeToPingTime.get(node));
+            if (duration >= SUSPECT_THRESHOLD && !suspectedNodeToPingTime.containsKey(node)) {
+                CUSTOM_LOGGER.logDebug(String.format("Marking node %d as SUSPECT", node));
+                suspectedNodeToPingTime.put(node, nodeToPingTime.get(node));
+                nodeToPingTime.remove(node);
+            }
+        }
     }
 
     public void recordPingRequestTime(int node) {
@@ -55,9 +72,10 @@ public class ServerSyncState {
     }
 
     public void markNodeAsFailed(int node) {
-        if (this.failedNodes.add(node)) {
-            System.out.printf("Marking node %d as FAILED\n", node);
-            this.nodeToPingTime.remove(node);
+        if (failedNodes.add(node)) {
+            CUSTOM_LOGGER.logDebug(String.format("Marking node %d as FAILED", node));
+            nodeToPingTime.remove(node);
+            suspectedNodeToPingTime.remove(node);
         }
     }
 
@@ -66,7 +84,11 @@ public class ServerSyncState {
     }
 
     public void markNodeAsAlive(int node) {
-        this.nodeToPingTime.remove(node);
+        if (suspectedNodeToPingTime.containsKey(node)) {
+            suspectedNodeToPingTime.remove(node);
+        } else {
+            this.nodeToPingTime.remove(node);
+        }
     }
 
     @Override
@@ -74,8 +96,7 @@ public class ServerSyncState {
         String allFailedNodes = failedNodes.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
-        Set<Integer> suspectedNodes = getNodesPassSuspectThreshold(System.currentTimeMillis());
-        String allSuspectNodes = suspectedNodes
+        String allSuspectNodes = suspectedNodeToPingTime.keySet()
                 .stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
@@ -85,7 +106,7 @@ public class ServerSyncState {
                 " " +
                 PING_SUSPECT +
                 ":" +
-                (suspectedNodes.isEmpty() ? "," : allSuspectNodes);
+                (suspectedNodeToPingTime.isEmpty() ? "," : allSuspectNodes);
     }
 
     public void recordIndirectPing(int fromPort, int forPort) {

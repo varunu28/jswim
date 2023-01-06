@@ -12,13 +12,15 @@ public record PingRequestMessage(int fromPort, int forPort, int selfPort,
     @Override
     public void interpret() {
         try {
-            System.out.printf("Received %s from %d for %d\n", PING_REQUEST_MESSAGE, this.fromPort, this.forPort);
+            logger.logInfo(String.format(
+                    "Received %s from %d for %d", PING_REQUEST_MESSAGE, this.fromPort, this.forPort));
             CustomClient client = new CustomClient(this.forPort);
             client.sendMessage(String.format("%s %d %s", PING_MESSAGE, selfPort, serverSyncState.toString()));
             client.close();
             serverSyncState.recordIndirectPing(fromPort, forPort);
         } catch (Exception e) {
-            System.out.printf("Exception while indirectly pinging %d on behalf of %d\n", this.forPort, this.fromPort);
+            logger.logError(String.format(
+                    "Exception while indirectly pinging %d on behalf of %d", this.forPort, this.fromPort));
         }
     }
 }

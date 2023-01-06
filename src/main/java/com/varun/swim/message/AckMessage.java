@@ -12,7 +12,7 @@ public record AckMessage(int fromPort, ServerSyncState serverSyncState) implemen
 
     @Override
     public void interpret() throws IOException {
-        System.out.printf("Received %s from %d\n", ACK_MESSAGE, this.fromPort);
+        logger.logInfo(String.format("Received %s from %d", ACK_MESSAGE, this.fromPort));
         this.serverSyncState.markNodeAsAlive(this.fromPort);
         List<Integer> indirectPingRequestsForNode = serverSyncState.getRecordForIndirectPing(fromPort);
         for (Integer node : indirectPingRequestsForNode) {

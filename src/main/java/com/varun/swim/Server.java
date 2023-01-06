@@ -1,5 +1,6 @@
 package com.varun.swim;
 
+import com.varun.swim.logging.CustomLogger;
 import com.varun.swim.message.ServerMessage;
 import com.varun.swim.message.ServerMessageFactory;
 import com.varun.swim.task.FailureDetectionTask;
@@ -23,10 +24,12 @@ import static com.varun.swim.util.Constants.*;
 @SuppressWarnings("InfiniteLoopStatement")
 public class Server {
 
+    private static final CustomLogger CUSTOM_LOGGER = new CustomLogger();
+
     public static void main(String[] args) throws IOException {
         int port = Integer.parseInt(args[0]);
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.printf("Server started on port: %d\n", port);
+            CUSTOM_LOGGER.logInfo(String.format("Server started on port: %d", port));
             FileUtil.persistServerConfig(port);
             ServerSyncState serverSyncState = new ServerSyncState();
 

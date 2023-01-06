@@ -1,10 +1,13 @@
 package com.varun.swim.task;
 
 import com.varun.swim.CustomClient;
+import com.varun.swim.logging.CustomLogger;
 
 import java.util.List;
 
 public class Broadcaster {
+
+    private static final CustomLogger customLogger = new CustomLogger();
 
     public static void broadcastToRandomPeers(List<Integer> peerNodes, String message, long broadcastCount) {
         int peerNodeIdx = 0;
@@ -16,7 +19,8 @@ public class Broadcaster {
                 client.sendMessage(message);
                 client.close();
             } catch (Exception e) {
-                System.out.printf("Exception while communicating with node on port %d \n", randomPeerNode);
+                customLogger.logError(String.format(
+                        "Exception while communicating with node on port %d", randomPeerNode));
             }
         }
     }

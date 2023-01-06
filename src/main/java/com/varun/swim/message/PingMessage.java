@@ -16,7 +16,7 @@ public record PingMessage(int fromPort, int selfPort,
 
     @Override
     public void interpret() throws IOException {
-        System.out.printf("Received %s from %d\n", PING_MESSAGE, this.fromPort);
+        logger.logInfo(String.format("Received %s from %d", PING_MESSAGE, this.fromPort));
         this.serverSyncState.markNodeAsAlive(this.fromPort);
         for (Integer failedNode : failedNodes) {
             serverSyncState.markNodeAsFailed(failedNode);
