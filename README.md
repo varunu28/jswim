@@ -1,27 +1,13 @@
-# ToDo
+# JSWIM
 
- - [X] **Background Process 1**
-   - [X] Send PING message to a random set of 2 processes
-   - [X] Add a time entry against the process to PING list
- - [X] **Background Process 2**
-   - [X] Filter out time entries which have crossed the PING threshold but not the suspect threshold
-   - [X] Pick another set of random processes and send PING-REQUEST to ping the filtered processes
-   - [X] Add a time entry against the process to PING-REQUEST list
- - [X] **Background Process 3**
-   - [X] Filter out time entries which have crossed the suspect threshold
-   - [X] Mark the node as suspect
-   - [X] Broadcast to a random set of nodes about the failure using PING message
- - [X] **Background Process 4**
-   - [X] Filter out time entries which have crossed the suspect threshold
-   - [X] Mark the node as failed 
-   - [X] Broadcast to a random set of nodes about the failure using PING message
- - [X] **Handling ACK message**
-   - [X] Mark the process as alive
-   - [X] Broadcast the alive as PING
-   - [X] Remove time entry against the process
- - [X] **Handling PING message**
-   - [X] Read the Piggybacked state associated with PING and update server state
-   - [X] Respond with an ACK 
- - [X] **Handling PING-REQUEST message**
-   - [X] Send a PING to requested process
-   - [X] If ACK is received, return it back with ACK response
+An implementation of SWIM protocol in Java
+
+## Demo 
+#### Basic SWIM Communication 
+![](demo/Basic%20SWIM%20communication.gif)
+
+#### Transitioning to `suspected` state and then back to healthy state
+![](demo/Suspect%20And%20Back.gif)
+
+#### Tranisitioning to `suspected` and then further to `failed` state
+![](demo/Suspect%20And%20Failed.gif)
