@@ -1,6 +1,6 @@
 # JSWIM
 
-An implementation of SWIM protocol in Java
+An implementation of [SWIM protocol](https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf) in Java
 
 ## Demo 
 #### Basic SWIM Communication 
